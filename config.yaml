@@ -3,10 +3,17 @@
 data:
   path: 'data/train.csv'  # Path to training data
   schema:
-    - name: 'text'
+    - name: 'case_id'
+      type: 'str'
+    - name: 'embedding_vector'
+      type: 'list[float]'
+    - name: 'timestamp'
       type: 'str'
     - name: 'label'
       type: 'str'
+  stratify: true
+  test_size: 0.2
+  random_state: 42
 
 preprocessing:
   embedding_model: 'all-MiniLM-L6-v2'
@@ -15,17 +22,22 @@ preprocessing:
 
 model:
   type: 'LogisticRegression'
-  penalty: 'l1'
-  C: 10
-  random_state: 42
-
-training:
-  test_size: 0.2
-  stratify: true
+  hyperparameters:
+    penalty: 'l1'
+    C: 10
+    random_state: 42
+  grid_search: false
+  cross_val: false
   cv_folds: 5
   scoring: 'f1'
 
 output:
   model_dir: 'models/'
   model_name: 'pcc_model.joblib'
-  metrics_path: 'models/metrics.json' 
+  metadata_name: 'metadata.json'
+  metrics_path: 'output/metrics.json'
+  predictions_path: 'output/predictions.parquet'
+  monitor_log_path: 'logs/monitoring_log.jsonl'
+
+logging:
+  level: 'INFO' 
