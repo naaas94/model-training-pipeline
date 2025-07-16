@@ -1,11 +1,31 @@
-# Example configuration for model-training-pipeline
-model:
-  type: LogisticRegression
-  hyperparameters:
-    C: 1.0
-    max_iter: 100
-    random_state: 42
+# config.yaml: Model Training Pipeline Configuration
+
 data:
-  stratify: true
+  path: 'data/train.csv'  # Path to training data
+  schema:
+    - name: 'text'
+      type: 'str'
+    - name: 'label'
+      type: 'str'
+
+preprocessing:
+  embedding_model: 'all-MiniLM-L6-v2'
+  balance: true
+  balance_method: 'SMOTE'
+
+model:
+  type: 'LogisticRegression'
+  penalty: 'l1'
+  C: 10
+  random_state: 42
+
+training:
   test_size: 0.2
-  random_state: 42 
+  stratify: true
+  cv_folds: 5
+  scoring: 'f1'
+
+output:
+  model_dir: 'models/'
+  model_name: 'pcc_model.joblib'
+  metrics_path: 'models/metrics.json' 
