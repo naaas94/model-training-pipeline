@@ -1,0 +1,11 @@
+# Example configuration for model-training-pipeline
+model:
+  type: LogisticRegression
+  hyperparameters:
+    C: 1.0
+    max_iter: 100
+    random_state: 42
+data:
+  stratify: true
+  test_size: 0.2
+  random_state: 42 
