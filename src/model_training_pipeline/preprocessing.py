@@ -6,13 +6,7 @@ from .utils import get_logger
 
 logger = get_logger('preprocessing')
 
-# preprocessing.py: Embedding and data balancing for model training pipeline
-
-# Placeholder for embedding function
-def generate_embeddings(df):
-    """Generate or load embeddings for the input data."""
-    pass
-
+# preprocessing.py: data balancing for model training pipeline
 
 def balance_data(df, label_col='label', method='SMOTE', random_state=42):
     """
@@ -56,3 +50,21 @@ def stratified_train_test_split(df, label_col='label', test_size=0.2, random_sta
     logger.info(f"Train class distribution: {pd.Series(y_train).value_counts().to_dict()}")
     logger.info(f"Test class distribution: {pd.Series(y_test).value_counts().to_dict()}")
     return X_train, X_test, y_train, y_test 
+
+def preprocess_for_training(df, embedding_col='embedding_vector', intent_col='intent'):
+    """
+    Preprocess the dataset for training.
+    - Extract embeddings
+    - One-hot encode the intent column
+    Returns processed DataFrame.
+    """
+    # Extract embeddings
+    X = np.vstack(df[embedding_col].values)
+    
+    # One-hot encode intent
+    intents = pd.get_dummies(df[intent_col])
+    
+    # Combine embeddings and intents
+    processed_df = pd.concat([pd.DataFrame(X), intents], axis=1)
+    
+    return processed_df 

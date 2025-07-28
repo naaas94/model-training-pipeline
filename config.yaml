@@ -16,7 +16,7 @@ data:
   random_state: 42
 
 preprocessing:
-  embedding_model: 'all-MiniLM-L6-v2'
+  embedding_model: 'all-MiniLM-L6-v2'  # Use only 'all-MiniLM-L6-v2' embeddings for now
   balance: true
   balance_method: 'SMOTE'
 
@@ -33,7 +33,7 @@ model:
 
 output:
   model_dir: 'models/'
-  model_name: 'pcc_model.joblib'
+  model_name: 'pcc_model.pkl'  # Updated to pkl format
   metadata_name: 'metadata.json'
   metrics_path: 'output/metrics.json'
   predictions_path: 'output/predictions.parquet'

@@ -123,10 +123,9 @@ pytest
 
 ---
 
-## Next Steps
-
-- Use 'all-MiniLM-L6-v2' embeddings for the current implementation.
-- Plan to experiment with all three types of embeddings (w2v, 'all-MiniLM-L6-v2', tfidf) in future iterations.
+## ➡️ Next Steps
+- Integrate with the next pipeline or system as needed
+- Extend with new models or features as requirements evolve
 
 ---
 
