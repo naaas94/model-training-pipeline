@@ -1,7 +1,7 @@
 # config.yaml: Model Training Pipeline Configuration
 
 data:
-  path: 'data/train.csv'  # Path to training data
+  path: 'src/data/balanced_dataset_20250728.csv'
   schema:
     - name: 'text'
       type: 'str'
@@ -28,7 +28,7 @@ data:
   random_state: 42
 
 preprocessing:
-  embedding_model: 'all-MiniLM-L6-v2'  # Will use only 'all-MiniLM-L6-v2' embeddings for now
+  embedding_model: 'all-MiniLM-L6-v2'
   balance: true
   balance_method: 'SMOTE'
 
@@ -40,19 +40,16 @@ model:
     solver: 'liblinear'
     random_state: 42
   grid_search: true
-  search_method: 'random' 
-  n_iter: 20  
+  search_method: 'random'  # Options: 'grid', 'random', 'none'
+  n_iter: 20  # Number of iterations for random search
   cross_val: false
   cv_folds: 5
-  scoring: 'f1'
+  scoring: 'f1_weighted'  # Updated for multi-class classification
 
 output:
-  model_dir: 'models/'
-  model_name: 'pcc_model.joblib'  # Changed to joblib format
-  metadata_name: 'metadata.json'
-  metrics_path: 'output/metrics.json'
-  predictions_path: 'output/predictions.parquet'
-  monitor_log_path: 'logs/monitoring_log.jsonl'
+  predictions: 'output/test_predictions.parquet'
+  metrics: 'output/test_metrics.json'
+  monitoring_log: 'logs/test_monitoring.jsonl'
 
 logging:
   level: 'INFO' 

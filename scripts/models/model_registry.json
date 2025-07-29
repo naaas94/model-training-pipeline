@@ -1,0 +1,48 @@
+{
+  "runs": [
+    {
+      "run_id": "run_20250729_090629",
+      "timestamp": "2025-07-29T09:06:29.016988",
+      "model_version": null,
+      "embedding_model": "all-MiniLM-L6-v2",
+      "metrics": {},
+      "hyperparameters": {},
+      "data_info": {},
+      "gcs_paths": {},
+      "run_timestamp": 1753790789.007369,
+      "status": "failed",
+      "notes": "Pipeline failed: [Errno 2] No such file or directory: 'data/train.csv'",
+      "processing_duration_seconds": 0.0015587806701660156
+    },
+    {
+      "run_id": "run_20250729_090708",
+      "timestamp": "2025-07-29T09:07:08.466865",
+      "model_version": null,
+      "embedding_model": "all-MiniLM-L6-v2",
+      "metrics": {},
+      "hyperparameters": {},
+      "data_info": {},
+      "gcs_paths": {},
+      "run_timestamp": 1753790828.4668658,
+      "status": "failed",
+      "notes": "Pipeline failed: [Errno 2] No such file or directory: 'C:\\\\Users\\\\aleja\\\\Repos\\\\model-training-pipeline\\\\data/train.csv'",
+      "processing_duration_seconds": 0.009901762008666992
+    },
+    {
+      "run_id": "run_20250729_090734",
+      "timestamp": "2025-07-29T09:07:34.633834",
+      "model_version": null,
+      "embedding_model": "all-MiniLM-L6-v2",
+      "metrics": {},
+      "hyperparameters": {},
+      "data_info": {},
+      "gcs_paths": {},
+      "run_timestamp": 1753790854.6338341,
+      "status": "failed",
+      "notes": "Pipeline failed: [Errno 2] No such file or directory: 'C:\\\\Users\\\\aleja\\\\Repos\\\\model-training-pipeline\\\\data/train.csv'",
+      "processing_duration_seconds": 0.006649494171142578
+    }
+  ],
+  "models": {},
+  "last_updated": "2025-07-29T09:07:34.633834"
+}

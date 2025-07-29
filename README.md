@@ -36,7 +36,12 @@ A modular, production-ready pipeline for training and versioning privacy intent 
 
 4. **Run the pipeline**
    ```bash
+   # From project root (recommended)
    python scripts/train_pipeline.py
+   
+   # Or from scripts directory
+   cd scripts
+   python train_pipeline.py
    ```
    - Outputs (model, metrics, predictions, logs) will be saved to the locations specified in `config.yaml`.
    - **Models are automatically saved to GCS**: `gs://pcc-datasets/pcc-models/`
@@ -99,34 +104,17 @@ model-training-pipeline/
 
 ---
 
-## 🛠️ Pipeline Stages
+## **🔧 Pipeline Stages**
 
-### Data Ingestion & Validation
-- Loads data from CSV, Parquet, or PKL files
-- Validates embedding vectors (384-dimensional)
-- Drops invalid rows and logs issues
-
-### Preprocessing
-- SMOTE-based class balancing (configurable)
-- Stratified train/test split
-- Logging of class distributions and split sizes
-
-### Model Training
-- Logistic Regression with hyperparameter optimization
-- **Grid Search**: Tests predefined parameter combinations
-- **Random Search**: Tests continuous parameter ranges (often more effective)
-- Model and metadata saving (local + GCS)
-
-### Evaluation
-- F1, ROC-AUC, PR-AUC, accuracy, confusion matrix
-- Schema-compliant predictions and metrics outputs
-- Monitoring log (JSONL)
-
-### Model Registry
-- Tracks all training runs with metadata
-- Performance metrics over time
-- GCS path tracking
-- Export capabilities for analysis
+1. **Data Ingestion**: Load data from CSV/Parquet files or Google Cloud Storage
+2. **Data Validation**: Schema validation, embedding vector validation (584-dimensional: 384 sentence + 200 TF-IDF)
+3. **Preprocessing**: 
+   - **Balancing**: SMOTE for class imbalance
+   - **Splitting**: Stratified train-test split
+4. **Model Training**: Logistic Regression with hyperparameter optimization
+5. **Evaluation**: F1, Accuracy, ROC-AUC, PR-AUC metrics
+6. **Persistence**: Save model, predictions, and monitoring logs
+7. **Model Registry**: Track all runs, metadata, and GCS paths
 
 ---
 
@@ -171,6 +159,123 @@ model:
 | Grid | [0.1, 1, 10, 100] | [l1, l2] | [liblinear, saga] | 16 | Medium | Good |
 | Random | [0.01, 1000] | [l1, l2] | [liblinear, saga] | 20 | Fast | Better |
 | None | Fixed | Fixed | Fixed | 1 | Fastest | Basic |
+
+---
+
+## 🚀 Advanced Hyperparameter Optimization (Future Enhancements)
+
+While the current pipeline uses grid search and random search for simplicity, there are more advanced methods that could be implemented for even better hyperparameter optimization:
+
+### **Bayesian Optimization**
+```python
+# Example with Optuna
+import optuna
+
+def objective(trial):
+    C = trial.suggest_float('C', 0.01, 1000, log=True)
+    penalty = trial.suggest_categorical('penalty', ['l1', 'l2'])
+    solver = trial.suggest_categorical('solver', ['liblinear', 'saga'])
+    # ... model training and evaluation
+```
+
+**Advantages:**
+- Uses previous trial results to guide next trials
+- Often finds optimal hyperparameters in fewer trials
+- More efficient than random search
+- Can handle complex parameter spaces
+
+**Why we're not using it:**
+- Requires additional dependencies (Optuna, scikit-optimize)
+- More complex to understand and debug
+- Overkill for simple LogisticRegression models
+
+### **Tree-structured Parzen Estimators (TPE)**
+```python
+# Example with Hyperopt
+from hyperopt import fmin, tpe, hp
+
+space = {
+    'C': hp.loguniform('C', np.log(0.01), np.log(1000)),
+    'penalty': hp.choice('penalty', ['l1', 'l2']),
+    'solver': hp.choice('solver', ['liblinear', 'saga'])
+}
+```
+
+**Advantages:**
+- Very efficient for expensive evaluations
+- Good for deep learning and complex models
+- Adaptive sampling based on previous results
+
+**Why we're not using it:**
+- Complex implementation
+- Requires Hyperopt dependency
+- Better suited for expensive model training
+
+### **Sequential Model-Based Optimization (SMBO)**
+```python
+# Example with scikit-optimize
+from skopt import gp_minimize
+from skopt.space import Real, Categorical
+
+space = [
+    Real(0.01, 1000, name='C', prior='log-uniform'),
+    Categorical(['l1', 'l2'], name='penalty'),
+    Categorical(['liblinear', 'saga'], name='solver')
+]
+```
+
+**Advantages:**
+- Gaussian Process-based optimization
+- Good for continuous and categorical parameters
+- Efficient exploration-exploitation balance
+
+**Why we're not using it:**
+- Requires scikit-optimize dependency
+- More complex than needed for our use case
+- Better for expensive objective functions
+
+### **Comparison of All Methods:**
+
+| Method | Efficiency | Complexity | Dependencies | Best For |
+|--------|------------|------------|--------------|----------|
+| **Random Search** | Medium | Low | None | ✅ **Our Choice** |
+| Grid Search | Low | Low | None | Small spaces |
+| Bayesian (Optuna) | High | Medium | Optuna | Complex models |
+| TPE (Hyperopt) | High | High | Hyperopt | Expensive training |
+| SMBO (skopt) | High | Medium | scikit-optimize | Continuous params |
+
+### **When to Consider Advanced Methods:**
+
+**Stick with Random Search if:**
+- ✅ Simple models (LogisticRegression, RandomForest)
+- ✅ Quick iteration cycles
+- ✅ Team prefers simplicity
+- ✅ Limited computational resources
+
+**Consider Advanced Methods if:**
+- 🔄 Training deep learning models
+- 🔄 Expensive model training (>1 hour per trial)
+- 🔄 Complex parameter spaces (>10 parameters)
+- 🔄 Need maximum performance optimization
+- 🔄 Have expertise in advanced optimization
+
+### **Future Implementation Path:**
+
+If you later want to add advanced optimization:
+
+1. **Start with Optuna** (easiest to implement)
+2. **Add as optional dependency** (don't break existing functionality)
+3. **Keep random search as default** (for simplicity)
+4. **Add configuration option** for advanced users
+
+```yaml
+# Future config option
+model:
+  search_method: 'bayesian'  # 'random', 'grid', 'bayesian', 'tpe'
+  optimization_library: 'optuna'  # 'sklearn', 'optuna', 'hyperopt'
+```
+
+**For now, random search provides excellent results with minimal complexity!** 🎯
 
 ---
 
@@ -291,3 +396,151 @@ pytest
 **This pipeline is now ready for production use with full GCS integration, model tracking, and advanced hyperparameter optimization!**
 
 For questions or further customization, see the code comments and config file, or contact the pipeline author. 
+
+## **🚀 Next Steps & Future Enhancements**
+
+### **📊 Enhanced Scoring & Metrics**
+- **Training Set Scores**: Add metrics computation on training set after model fitting
+- **Validation Set Scores**: Implement train/val/test splits for proper validation
+- **Cross-Validation Scores**: Enable and log detailed CV metrics across folds
+- **Per-Class Metrics**: Expand per-class precision, recall, and confusion matrix analysis
+- **Model Interpretability**: Add feature importance analysis and SHAP values
+
+### **🔧 Advanced Hyperparameter Optimization**
+Currently using Grid Search and Random Search. Future implementations:
+
+| Method | Library | Pros | Cons | When to Use |
+|--------|---------|------|------|-------------|
+| **Bayesian Optimization** | Optuna | Efficient, handles continuous params | Complex setup | Limited compute budget |
+| **Tree-structured Parzen Estimators (TPE)** | Hyperopt | Good for categorical params | Slower convergence | Mixed parameter types |
+| **Sequential Model-Based Optimization (SMBO)** | scikit-optimize | Robust, good defaults | Less flexible | General purpose |
+
+**Implementation Path:**
+```python
+# Example: Bayesian Optimization with Optuna
+import optuna
+
+def objective(trial):
+    params = {
+        'C': trial.suggest_float('C', 1e-4, 1e2, log=True),
+        'penalty': trial.suggest_categorical('penalty', ['l1', 'l2']),
+        'solver': trial.suggest_categorical('solver', ['liblinear', 'saga'])
+    }
+    # Train and evaluate model
+    return cv_score
+
+study = optuna.create_study(direction='maximize')
+study.optimize(objective, n_trials=100)
+```
+
+### **🤖 Automated Pipeline Workflows**
+
+#### **GitHub Actions Workflow**
+```yaml
+# .github/workflows/ml-pipeline.yml
+name: ML Pipeline Automation
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  check-new-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for new dataset
+        run: |
+          TODAY=$(date +%Y%m%d)
+          if [ -f "src/data/balanced_dataset_${TODAY}.csv" ]; then
+            echo "NEW_DATA=true" >> $GITHUB_ENV
+          fi
+      
+      - name: Run ML Pipeline
+        if: env.NEW_DATA == 'true'
+        run: |
+          python scripts/train_pipeline.py
+          
+      - name: Deploy Model
+        if: env.NEW_DATA == 'true'
+        run: |
+          # Deploy to production
+          # Update model registry
+          # Send notifications
+```
+
+#### **Local Automation Script**
+```python
+# scripts/auto_pipeline.py
+import os
+from datetime import datetime
+from scripts.train_pipeline import main as run_pipeline
+
+def check_and_run():
+    today = datetime.now().strftime('%Y%m%d')
+    data_path = f'src/data/balanced_dataset_{today}.csv'
+    
+    if os.path.exists(data_path):
+        print(f"New data found: {data_path}")
+        run_pipeline()
+        # Send notification
+    else:
+        print(f"No new data for {today}")
+
+if __name__ == '__main__':
+    check_and_run()
+```
+
+### **📈 Model Monitoring & MLOps**
+- **Model Performance Tracking**: Monitor model drift and performance degradation
+- **A/B Testing Framework**: Compare model versions in production
+- **Alerting System**: Notify on model performance issues
+- **Model Versioning**: Enhanced version control with semantic versioning
+- **Experiment Tracking**: Integration with MLflow or Weights & Biases
+
+### **🔍 Data Quality & Validation**
+- **Data Drift Detection**: Monitor changes in data distribution
+- **Schema Validation**: Enhanced data validation with Pydantic
+- **Data Quality Metrics**: Completeness, consistency, accuracy scores
+- **Automated Data Profiling**: Generate data quality reports
+
+### **⚡ Performance Optimizations**
+- **Parallel Processing**: Multi-core data processing
+- **GPU Acceleration**: CUDA support for large datasets
+- **Caching Layer**: Redis/Memcached for intermediate results
+- **Streaming Processing**: Handle large datasets without loading into memory
+
+### **🔐 Security & Compliance**
+- **Data Encryption**: At-rest and in-transit encryption
+- **Access Control**: Role-based permissions for model access
+- **Audit Logging**: Comprehensive logging for compliance
+- **Data Privacy**: GDPR/CCPA compliance features
+
+### **🌐 Production Deployment**
+- **Docker Containerization**: Containerized pipeline deployment
+- **Kubernetes Orchestration**: Scalable model serving
+- **API Endpoints**: RESTful API for model predictions
+- **Load Balancing**: High-availability model serving
+
+### **📊 Advanced Analytics**
+- **Model Interpretability**: SHAP, LIME integration
+- **Feature Engineering Pipeline**: Automated feature selection
+- **Ensemble Methods**: Stacking, voting, bagging
+- **Time Series Analysis**: Temporal pattern recognition
+
+### **🔄 Continuous Integration/Deployment**
+- **Automated Testing**: Unit, integration, and performance tests
+- **Model Validation**: Pre-deployment model checks
+- **Rollback Mechanisms**: Quick model version rollback
+- **Blue-Green Deployment**: Zero-downtime model updates
+
+---
+
+## **🎯 Implementation Priority**
+
+1. **High Priority**: Training/Validation scores, Bayesian optimization
+2. **Medium Priority**: Automated workflows, model monitoring
+3. **Low Priority**: Advanced MLOps, production deployment
+
+*Each enhancement can be implemented incrementally without breaking existing functionality.* 

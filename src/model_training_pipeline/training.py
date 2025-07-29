@@ -8,36 +8,51 @@ from datetime import datetime
 import json
 import os
 from .utils import get_logger
+import pandas as pd
+from typing import Tuple, Any
 
 logger = get_logger('training')
 
-def train_model(X, y, config, model_dir='models/', model_name='pcc_model.joblib', metadata_name='metadata.json'):
+def train_model(X_train: pd.DataFrame, y_train: pd.Series, config: dict) -> Tuple[Any, dict]:
     """
-    Train a model using the provided data and config. Optionally perform grid search/CV.
-    Save model and metadata.
-    Returns trained model and best params.
+    Train a model with the given configuration.
+    Returns (trained_model, metadata_dict).
     """
+    logger = get_logger('training')
+    
+    # Extract configuration
     model_type = config.get('type', 'LogisticRegression')
     params = config.get('hyperparameters', {})
-    search_method = config.get('search_method', 'none')  # 'grid', 'random', 'none'
-    n_iter = config.get('n_iter', 20)  # Number of iterations for random search
+    grid_search = config.get('grid_search', False)
+    search_method = config.get('search_method', 'grid')
+    n_iter = config.get('n_iter', 20)
+    cross_val = config.get('cross_val', False)
     cv_folds = config.get('cv_folds', 5)
-    scoring = config.get('scoring', 'f1')
+    scoring = config.get('scoring', 'f1_weighted')  # Changed to weighted for multi-class
     random_state = params.get('random_state', 42)
-    os.makedirs(model_dir, exist_ok=True)
-
+    
+    # Prepare features (embeddings)
+    X = np.array(X_train['embeddings'].tolist())
+    y = y_train.values
+    
+    logger.info(f"Training data shape: {X.shape}")
+    logger.info(f"Target classes: {np.unique(y)}")
+    logger.info(f"Class distribution: {pd.Series(y).value_counts().to_dict()}")
+    
+    # Initialize model
     if model_type == 'LogisticRegression':
-        model = LogisticRegression(**params)
+        # Remove random_state from params to avoid duplicate argument
+        model_params = {k: v for k, v in params.items() if k != 'random_state'}
+        model = LogisticRegression(random_state=random_state, **model_params)
     else:
-        logger.error(f"Unsupported model type: {model_type}")
         raise ValueError(f"Unsupported model type: {model_type}")
-
+    
+    # Hyperparameter optimization
     best_params = params
     search_info = {}
     
     if search_method == 'grid':
         logger.info("Running grid search for hyperparameter optimization...")
-        # Grid search with predefined parameter combinations
         param_grid = {
             'C': [0.1, 1, 10, 100],
             'penalty': ['l1', 'l2'],
@@ -54,21 +69,20 @@ def train_model(X, y, config, model_dir='models/', model_name='pcc_model.joblib'
         }
         logger.info(f"Grid search completed. Best params: {best_params}")
         logger.info(f"Best CV score: {grid.best_score_:.4f}")
-        
+    
     elif search_method == 'random':
         logger.info(f"Running random search for hyperparameter optimization ({n_iter} iterations)...")
-        # Random search with continuous parameter ranges
         param_distributions = {
             'C': np.logspace(-2, 3, 1000),  # 0.01 to 1000
             'penalty': ['l1', 'l2'],
             'solver': ['liblinear', 'saga']
         }
         random_search = RandomizedSearchCV(
-            model, 
-            param_distributions=param_distributions, 
+            model,
+            param_distributions=param_distributions,
             n_iter=n_iter,
-            cv=cv_folds, 
-            scoring=scoring, 
+            cv=cv_folds,
+            scoring=scoring,
             n_jobs=-1,
             random_state=random_state
         )
@@ -82,39 +96,38 @@ def train_model(X, y, config, model_dir='models/', model_name='pcc_model.joblib'
         }
         logger.info(f"Random search completed. Best params: {best_params}")
         logger.info(f"Best CV score: {random_search.best_score_:.4f}")
-        
+    
     else:
         logger.info(f"Training model with fixed params: {params}")
         model.fit(X, y)
-
-    # Optionally, cross-validation
-    if config.get('cross_val', False):
-        scores = cross_val_score(model, X, y, cv=cv_folds, scoring=scoring)
-        logger.info(f"Cross-validation {scoring} scores: {scores}")
-
-    # Save model
-    model_path = os.path.join(model_dir, model_name)
-    joblib.dump(model, model_path)
-    logger.info(f"Saved model to {model_path}")
-
-    # Save metadata
+    
+    # Create metadata
     metadata = {
-        'model_version': f"v{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        'trained_on': datetime.now().isoformat(),
         'model_type': model_type,
-        'embedding_model': config.get('embedding_model', 'all-MiniLM-L6-v2'),
         'hyperparameters': best_params,
         'search_method': search_method,
         'search_info': search_info,
-        'cv_folds': cv_folds if search_method != 'none' or config.get('cross_val', False) else None,
-        'scoring': scoring,
-        'train_shape': list(X.shape),
-        'notes': config.get('notes', '')
+        'training_samples': len(X),
+        'feature_dimensions': X.shape[1],
+        'classes': np.unique(y).tolist(),
+        'class_distribution': pd.Series(y).value_counts().to_dict(),
+        'model_version': f"v{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        'training_timestamp': datetime.now().isoformat()
     }
-    metadata_path = os.path.join(model_dir, metadata_name)
+    
+    # Save model locally
+    model_path = 'models/pcc_model.joblib'
+    metadata_path = 'models/metadata.json'
+    
+    os.makedirs('models', exist_ok=True)
+    joblib.dump(model, model_path)
+    
     with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+        json.dump(metadata, f, indent=2, default=str)
+    
+    logger.info(f"Saved model to {model_path}")
     logger.info(f"Saved model metadata to {metadata_path}")
+    
     return model, metadata
 
 

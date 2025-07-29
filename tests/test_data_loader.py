@@ -21,7 +21,7 @@ def test_load_data(tmp_path):
         'has_personal_info': False,
         'formality_score': 0.555556,
         'urgency_score': 0.025926,
-        'embeddings': json.dumps(list(np.random.randn(384)))
+        'embeddings': json.dumps(list(np.random.randn(584)))  # Updated to 584 dimensions
     }
     invalid_row_shape = {
         'text': 'Test text',
@@ -45,7 +45,7 @@ def test_load_data(tmp_path):
         'has_personal_info': False,
         'formality_score': 0.5,
         'urgency_score': 0.1,
-        'embeddings': json.dumps([np.nan]*384)
+        'embeddings': json.dumps([np.nan]*584)  # Updated to 584 dimensions
     }
     df = pd.DataFrame([valid_row, invalid_row_shape, invalid_row_nan])
     csv_path = tmp_path / 'test_data.csv'
@@ -57,7 +57,7 @@ def test_load_data(tmp_path):
     assert loaded.iloc[0]['text'] == 'I\'m worried about my privacy. Stop tracking me.'
     assert loaded.iloc[0]['intent'] == 'opt_out'
     assert isinstance(loaded.iloc[0]['embeddings'], list)
-    assert len(loaded.iloc[0]['embeddings']) == 384 
+    assert len(loaded.iloc[0]['embeddings']) == 584  # Updated to 584 dimensions
 
 
 def test_balance_data():
@@ -73,7 +73,7 @@ def test_balance_data():
         'has_personal_info': [False]*40,
         'formality_score': [0.5]*40,
         'urgency_score': [0.1]*40,
-        'embeddings': [list(np.random.randn(384)) for _ in range(40)]
+        'embeddings': [list(np.random.randn(584)) for _ in range(40)]  # Updated to 584 dimensions
     })
     df_bal = balance_data(df, label_col='intent', method='SMOTE', random_state=42)
     assert abs(df_bal['intent'].value_counts()['opt_out'] - df_bal['intent'].value_counts()['other']) <= 1
@@ -90,7 +90,7 @@ def test_stratified_train_test_split():
         'has_personal_info': [False]*20,
         'formality_score': [0.5]*20,
         'urgency_score': [0.1]*20,
-        'embeddings': [list(np.random.randn(384)) for _ in range(20)]
+        'embeddings': [list(np.random.randn(584)) for _ in range(20)]  # Updated to 584 dimensions
     })
     X_train, X_test, y_train, y_test = stratified_train_test_split(df, label_col='intent', test_size=0.2, random_state=42)
     assert len(X_train) == 16
@@ -110,7 +110,7 @@ def test_train_and_evaluate():
         'has_personal_info': [False]*40,
         'formality_score': [0.5]*40,
         'urgency_score': [0.1]*40,
-        'embeddings': [list(np.random.randn(384)) for _ in range(40)]
+        'embeddings': [list(np.random.randn(584)) for _ in range(40)]  # Updated to 584 dimensions
     })
     X_train, X_test, y_train, y_test = stratified_train_test_split(df, label_col='intent', test_size=0.25, random_state=42)
     config = {

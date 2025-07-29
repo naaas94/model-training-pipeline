@@ -11,7 +11,7 @@ from google.cloud import storage
 logger = get_logger('data')
 
 REQUIRED_COLUMNS = ['text', 'intent', 'confidence', 'timestamp', 'text_length', 'word_count', 'has_personal_info', 'formality_score', 'urgency_score', 'embeddings']
-EMBEDDING_DIM = 384
+EMBEDDING_DIM = 584  # Updated to match actual data dimension
 
 def load_data(path: str) -> pd.DataFrame:
     """
@@ -19,16 +19,26 @@ def load_data(path: str) -> pd.DataFrame:
     Returns a DataFrame with only valid rows (invalid rows are dropped and logged).
     """
     if path.endswith('.csv'):
-        # Try different parsing methods for embeddings
-        try:
-            df = pd.read_csv(path, converters={'embeddings': lambda x: json.loads(x) if pd.notna(x) else [np.nan]*EMBEDDING_DIM})
-        except (json.JSONDecodeError, ValueError):
+        # Read CSV first, then parse embeddings
+        df = pd.read_csv(path)
+        
+        # Parse embeddings column
+        def parse_embeddings(emb_str):
+            if pd.isna(emb_str):
+                return [np.nan] * EMBEDDING_DIM
             try:
-                df = pd.read_csv(path, converters={'embeddings': lambda x: ast.literal_eval(x) if pd.notna(x) else [np.nan]*EMBEDDING_DIM})
-            except (ValueError, SyntaxError):
-                # Fallback: read as string and parse manually
-                df = pd.read_csv(path)
-                df['embeddings'] = df['embeddings'].apply(lambda x: json.loads(x) if pd.notna(x) else [np.nan]*EMBEDDING_DIM)
+                # Try json.loads first
+                return json.loads(emb_str)
+            except (json.JSONDecodeError, ValueError):
+                try:
+                    # Try ast.literal_eval as fallback
+                    return ast.literal_eval(emb_str)
+                except (ValueError, SyntaxError):
+                    logger.warning(f"Could not parse embeddings: {emb_str[:100]}...")
+                    return [np.nan] * EMBEDDING_DIM
+        
+        df['embeddings'] = df['embeddings'].apply(parse_embeddings)
+        
     elif path.endswith('.parquet'):
         df = pd.read_parquet(path)
     elif path.endswith('.pkl'):
@@ -63,11 +73,19 @@ def validate_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[int]]:
     # Validate embedding vectors
     for idx, embeddings in df['embeddings'].items():
         if not isinstance(embeddings, (list, np.ndarray)):
+            logger.debug(f"Row {idx}: embeddings is not list/array, type: {type(embeddings)}")
             valid_mask[idx] = False
             continue
         
         vec = np.asarray(embeddings)
-        if vec.shape != (EMBEDDING_DIM,) or np.isnan(vec).any():
+        if vec.shape != (EMBEDDING_DIM,):
+            logger.debug(f"Row {idx}: embedding shape {vec.shape} != expected {EMBEDDING_DIM}")
+            valid_mask[idx] = False
+            continue
+        
+        # Only drop if ALL values are NaN (completely invalid embedding)
+        if np.isnan(vec).all():
+            logger.debug(f"Row {idx}: all embedding values are NaN")
             valid_mask[idx] = False
     
     valid_df = df[valid_mask].copy()

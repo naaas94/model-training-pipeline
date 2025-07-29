@@ -9,10 +9,11 @@ import argparse
 import json
 from datetime import datetime
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+# Add the project root to Python path so we can import from src
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 
-from model_training_pipeline.model_registry import ModelRegistry
+from src.model_training_pipeline.model_registry import ModelRegistry
 
 def main():
     parser = argparse.ArgumentParser(description='Model Registry Management Tool')

@@ -1,19 +1,30 @@
 {
-  "model_version": "v20250729084352",
-  "trained_on": "2025-07-29T08:43:52.968320",
   "model_type": "LogisticRegression",
-  "embedding_model": "all-MiniLM-L6-v2",
   "hyperparameters": {
-    "penalty": "l1",
-    "C": 10,
     "solver": "liblinear",
-    "random_state": 42
+    "penalty": "l2",
+    "C": 93.10413487069076
   },
-  "cv_folds": null,
-  "scoring": "f1",
-  "train_shape": [
-    112,
-    384
+  "search_method": "random",
+  "search_info": {
+    "method": "random_search",
+    "best_score": 1.0,
+    "n_iterations": 20
+  },
+  "training_samples": 8000,
+  "feature_dimensions": 584,
+  "classes": [
+    "data_deletion",
+    "opt_out",
+    "other",
+    "privacy_request"
   ],
-  "notes": ""
+  "class_distribution": {
+    "other": 2000,
+    "opt_out": 2000,
+    "data_deletion": 2000,
+    "privacy_request": 2000
+  },
+  "model_version": "v20250729_092445",
+  "training_timestamp": "2025-07-29T09:24:45.039527"
 }

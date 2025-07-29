@@ -44,16 +44,27 @@ def stratified_train_test_split(df, label_col='intent', test_size=0.2, random_st
     """
     Split data into train/test sets, stratified by label.
     Logs split sizes and class distributions.
-    Returns X_train, X_test, y_train, y_test.
+    Returns X_train, X_test, y_train, y_test as DataFrames and Series.
     """
-    X = np.vstack(df['embeddings'].values)
-    y = df[label_col].values
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, stratify=y, random_state=random_state
+    # Create train/test indices
+    train_indices, test_indices = train_test_split(
+        df.index, test_size=test_size, stratify=df[label_col], random_state=random_state
     )
+    
+    # Split the DataFrame
+    train_df = df.loc[train_indices]
+    test_df = df.loc[test_indices]
+    
+    # Extract features and labels
+    X_train = train_df
+    X_test = test_df
+    y_train = train_df[label_col]
+    y_test = test_df[label_col]
+    
     logger.info(f"Train size: {len(y_train)}, Test size: {len(y_test)}")
     logger.info(f"Train class distribution: {pd.Series(y_train).value_counts().to_dict()}")
     logger.info(f"Test class distribution: {pd.Series(y_test).value_counts().to_dict()}")
+    
     return X_train, X_test, y_train, y_test
 
 def preprocess_for_training(df, embedding_col='embeddings', intent_col='intent'):

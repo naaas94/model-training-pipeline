@@ -28,22 +28,25 @@ def save_model_to_gcs(model, metadata, bucket_name='pcc-datasets', model_prefix=
     try:
         from google.cloud import storage
         import joblib
-        
+        import io
+
         client = storage.Client()
         bucket = client.bucket(bucket_name)
-        
+
         # Create timestamp for versioning
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         model_version = metadata.get('model_version', f'v{timestamp}')
-        
+
         # Save model to GCS
         model_blob_name = f"{model_prefix}/{model_version}/model.joblib"
         model_blob = bucket.blob(model_blob_name)
-        
+
         # Serialize model to bytes
-        model_bytes = joblib.dump(model)
+        model_buffer = io.BytesIO()
+        joblib.dump(model, model_buffer)
+        model_bytes = model_buffer.getvalue()
         model_blob.upload_from_string(model_bytes, content_type='application/octet-stream')
-        
+
         # Save metadata to GCS
         metadata_blob_name = f"{model_prefix}/{model_version}/metadata.json"
         metadata_blob = bucket.blob(metadata_blob_name)
@@ -51,16 +54,16 @@ def save_model_to_gcs(model, metadata, bucket_name='pcc-datasets', model_prefix=
             json.dumps(metadata, indent=2, default=str),
             content_type='application/json'
         )
-        
+
         logger.info(f"Model saved to GCS: gs://{bucket_name}/{model_blob_name}")
         logger.info(f"Metadata saved to GCS: gs://{bucket_name}/{metadata_blob_name}")
-        
+
         return {
             'model_gcs_path': f"gs://{bucket_name}/{model_blob_name}",
             'metadata_gcs_path': f"gs://{bucket_name}/{metadata_blob_name}",
             'model_version': model_version
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to save model to GCS: {e}")
         raise
