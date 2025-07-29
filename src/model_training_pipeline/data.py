@@ -3,7 +3,8 @@ import numpy as np
 import logging
 from typing import Tuple, List
 
-from .utils import get_logger
+from model_training_pipeline.utils import get_logger
+from google.cloud import storage
 
 logger = get_logger('data')
 
@@ -65,4 +66,28 @@ def validate_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[int]]:
         valid_df = pd.DataFrame(valid_rows)
     else:
         valid_df = pd.DataFrame({col: [] for col in REQUIRED_COLUMNS})
-    return valid_df, dropped_indices 
+    return valid_df, dropped_indices
+
+
+def ingest_data_from_gcs(bucket_name, source_blob_name):
+    """
+    Ingest data from a GCS bucket and store it in the 'data' directory.
+    """
+    import os
+    
+    # Create data directory if it doesn't exist
+    os.makedirs('data', exist_ok=True)
+    
+    destination_file_name = 'data/' + source_blob_name.split('/')[-1]
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    
+    # Load the CSV into a DataFrame
+    df = pd.read_csv(destination_file_name)
+    return df
+
+
+# Example usage
+# df = ingest_data_from_gcs('pcc-datasets', 'balanced_dataset_20250728.csv') 

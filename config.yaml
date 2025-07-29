@@ -16,7 +16,7 @@ data:
   random_state: 42
 
 preprocessing:
-  embedding_model: 'all-MiniLM-L6-v2'  # Use only 'all-MiniLM-L6-v2' embeddings for now
+  embedding_model: 'all-MiniLM-L6-v2'  # Will use only 'all-MiniLM-L6-v2' embeddings for now
   balance: true
   balance_method: 'SMOTE'
 
