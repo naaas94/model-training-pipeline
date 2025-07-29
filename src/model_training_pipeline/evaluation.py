@@ -9,40 +9,61 @@ from .utils import get_logger
 
 logger = get_logger('evaluation')
 
-# Placeholder for evaluation function
 def evaluate_model(model, X_test, y_test, case_ids=None, model_version=None, embedding_model=None, output_path=None, metrics_path=None, monitor_log_path=None, notes=None):
     """
     Evaluate the model and return/save metrics. Optionally save predictions and monitoring log.
     """
     y_pred = model.predict(X_test)
     if hasattr(model, 'predict_proba'):
-        y_proba = model.predict_proba(X_test)[:, 1]
+        y_proba = model.predict_proba(X_test)
+        # For binary classification, use the positive class probability
+        if y_proba.shape[1] == 2:
+            y_proba = y_proba[:, 1]
+        else:
+            y_proba = None  # Multiclass case, skip ROC AUC
     else:
         y_proba = None
+    
     # Determine pos_label for f1_score
     unique_labels = np.unique(y_test)
     if all(isinstance(l, (int, np.integer)) for l in unique_labels):
         pos_label = int(max(unique_labels))
         f1 = f1_score(y_test, y_pred, pos_label=pos_label)  # type: ignore
     elif all(isinstance(l, str) for l in unique_labels):
-        pos_label = 'PC' if 'PC' in unique_labels else str(unique_labels[0])
+        pos_label = 'opt_out' if 'opt_out' in unique_labels else str(unique_labels[0])
         f1 = f1_score(y_test, y_pred, pos_label=pos_label)  # type: ignore
     else:
         raise ValueError('Mixed or unknown label types in y_test for f1_score.')
+    
+    # Calculate metrics
     metrics = {
         'f1': f1,
-        'roc_auc': roc_auc_score(y_test, y_proba) if y_proba is not None else None,
-        'pr_auc': average_precision_score(y_test, y_proba) if y_proba is not None else None,
         'accuracy': accuracy_score(y_test, y_pred),
         'confusion_matrix': confusion_matrix(y_test, y_pred).tolist()
     }
+    
+    # Add ROC AUC and PR AUC only for binary classification with probabilities
+    if y_proba is not None and len(unique_labels) == 2:
+        try:
+            metrics['roc_auc'] = roc_auc_score(y_test, y_proba)
+            metrics['pr_auc'] = average_precision_score(y_test, y_proba)
+        except Exception as e:
+            logger.warning(f"Could not calculate ROC/PR AUC: {e}")
+            metrics['roc_auc'] = None
+            metrics['pr_auc'] = None
+    else:
+        metrics['roc_auc'] = None
+        metrics['pr_auc'] = None
+    
     logger.info(f"Evaluation metrics: {metrics}")
+    
     # Save metrics
     if metrics_path:
         with open(metrics_path, 'w') as f:
             import json
             json.dump(metrics, f, indent=2)
         logger.info(f"Saved metrics to {metrics_path}")
+    
     # Save predictions
     if output_path and case_ids is not None:
         df_pred = pd.DataFrame({
@@ -51,6 +72,7 @@ def evaluate_model(model, X_test, y_test, case_ids=None, model_version=None, emb
             'confidence': y_proba if y_proba is not None else np.nan
         })
         save_predictions(df_pred, output_path, model_version or '', embedding_model or '', notes)
+    
     # Save monitoring log
     if monitor_log_path:
         log = {
@@ -67,6 +89,7 @@ def evaluate_model(model, X_test, y_test, case_ids=None, model_version=None, emb
             'error_message': None
         }
         save_monitoring_log(log, monitor_log_path)
+    
     return metrics
 
 # Placeholder for visualization function

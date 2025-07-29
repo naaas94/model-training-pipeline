@@ -1,0 +1,19 @@
+{
+  "model_version": "v20250729084352",
+  "trained_on": "2025-07-29T08:43:52.968320",
+  "model_type": "LogisticRegression",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "hyperparameters": {
+    "penalty": "l1",
+    "C": 10,
+    "solver": "liblinear",
+    "random_state": 42
+  },
+  "cv_folds": null,
+  "scoring": "f1",
+  "train_shape": [
+    112,
+    384
+  ],
+  "notes": ""
+}

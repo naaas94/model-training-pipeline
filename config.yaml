@@ -3,14 +3,26 @@
 data:
   path: 'data/train.csv'  # Path to training data
   schema:
-    - name: 'case_id'
+    - name: 'text'
       type: 'str'
-    - name: 'embedding_vector'
-      type: 'list[float]'
+    - name: 'intent'
+      type: 'str'
+    - name: 'confidence'
+      type: 'float'
     - name: 'timestamp'
       type: 'str'
-    - name: 'label'
-      type: 'str'
+    - name: 'text_length'
+      type: 'int'
+    - name: 'word_count'
+      type: 'int'
+    - name: 'has_personal_info'
+      type: 'bool'
+    - name: 'formality_score'
+      type: 'float'
+    - name: 'urgency_score'
+      type: 'float'
+    - name: 'embeddings'
+      type: 'list[float]'
   stratify: true
   test_size: 0.2
   random_state: 42
@@ -25,15 +37,18 @@ model:
   hyperparameters:
     penalty: 'l1'
     C: 10
+    solver: 'liblinear'
     random_state: 42
-  grid_search: false
+  grid_search: true
+  search_method: 'random' 
+  n_iter: 20  
   cross_val: false
   cv_folds: 5
   scoring: 'f1'
 
 output:
   model_dir: 'models/'
-  model_name: 'pcc_model.pkl'  # Updated to pkl format
+  model_name: 'pcc_model.joblib'  # Changed to joblib format
   metadata_name: 'metadata.json'
   metrics_path: 'output/metrics.json'
   predictions_path: 'output/predictions.parquet'

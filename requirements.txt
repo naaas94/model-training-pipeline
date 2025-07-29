@@ -1,4 +1,8 @@
 pandas
 scikit-learn
 joblib
+imbalanced-learn
+PyYAML
+google-cloud-storage
+numpy
 # mlflow  # Optional: for experiment tracking 
