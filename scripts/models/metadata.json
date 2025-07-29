@@ -3,8 +3,8 @@
   "hyperparameters": {
     "solver": "liblinear",
     "penalty": "l2",
-    "max_iter": 2000,
-    "C": 2.406475150015424
+    "max_iter": 1000,
+    "C": 24.512600620333398
   },
   "search_method": "random",
   "search_info": {
@@ -26,6 +26,6 @@
     "data_deletion": 2000,
     "privacy_request": 2000
   },
-  "model_version": "v20250729_120642",
-  "training_timestamp": "2025-07-29T12:06:42.578607"
+  "model_version": "v20250729_120315",
+  "training_timestamp": "2025-07-29T12:03:15.826593"
 }

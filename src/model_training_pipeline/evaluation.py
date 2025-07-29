@@ -7,6 +7,7 @@ from datetime import datetime
 from .persistence import save_predictions, save_monitoring_log
 from .utils import get_logger
 from typing import List
+import json
 
 logger = get_logger('evaluation')
 
@@ -91,7 +92,18 @@ def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series, case_ids: Lis
             predictions_df[f'prob_{label}'] = y_proba[:, i]
     
     # Save predictions and metrics
-    save_predictions(predictions_df, metrics, model_version, embedding_model)
+    # Get output paths from config
+    from .utils import load_config
+    config = load_config('config.yaml')
+    predictions_path = config['output']['predictions']
+    metrics_path = config['output']['metrics']
+    
+    # Save predictions
+    save_predictions(predictions_df, predictions_path, model_version, embedding_model)
+    
+    # Save metrics
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2, default=str)
     
     logger.info(f"Model evaluation completed. Accuracy: {metrics['accuracy']:.4f}")
     logger.info(f"F1 (weighted): {metrics['f1_weighted']:.4f}")

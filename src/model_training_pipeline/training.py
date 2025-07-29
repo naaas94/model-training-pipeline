@@ -39,6 +39,23 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, config: dict) -> Tupl
     logger.info(f"Target classes: {np.unique(y)}")
     logger.info(f"Class distribution: {pd.Series(y).value_counts().to_dict()}")
     
+    # Data validation checks
+    logger.info(f"Feature statistics - Mean: {X.mean():.4f}, Std: {X.std():.4f}")
+    logger.info(f"Feature range - Min: {X.min():.4f}, Max: {X.max():.4f}")
+    
+    # Check for potential data issues
+    if X.std() < 1e-6:
+        logger.warning("Very low feature variance detected - possible data leakage or preprocessing issue")
+    
+    if len(np.unique(y)) < 2:
+        raise ValueError("Only one class found in training data")
+    
+    # Check for class imbalance
+    class_counts = pd.Series(y).value_counts()
+    min_class_ratio = class_counts.min() / class_counts.max()
+    if min_class_ratio < 0.1:
+        logger.warning(f"Severe class imbalance detected: {min_class_ratio:.3f}")
+    
     # Initialize model
     if model_type == 'LogisticRegression':
         # Remove random_state from params to avoid duplicate argument
@@ -54,9 +71,10 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, config: dict) -> Tupl
     if search_method == 'grid':
         logger.info("Running grid search for hyperparameter optimization...")
         param_grid = {
-            'C': [0.1, 1, 10, 100],
-            'penalty': ['l1', 'l2'],
-            'solver': ['liblinear', 'saga']
+            'C': [0.1, 1, 5],  # More conservative range
+            'penalty': ['l2'],  # Only l2 to avoid solver conflicts
+            'solver': ['liblinear', 'lbfgs'],  # Only compatible solvers
+            'max_iter': [1000, 2000]  # Higher max_iter values
         }
         grid = GridSearchCV(model, param_grid=param_grid, cv=cv_folds, scoring=scoring, n_jobs=-1)
         grid.fit(X, y)
@@ -69,13 +87,18 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, config: dict) -> Tupl
         }
         logger.info(f"Grid search completed. Best params: {best_params}")
         logger.info(f"Best CV score: {grid.best_score_:.4f}")
+        
+        # Check for suspiciously high CV scores
+        if grid.best_score_ > 0.99:
+            logger.warning(f"Suspiciously high CV score ({grid.best_score_:.4f}) - possible overfitting or data leakage")
     
     elif search_method == 'random':
         logger.info(f"Running random search for hyperparameter optimization ({n_iter} iterations)...")
         param_distributions = {
-            'C': np.logspace(-2, 3, 1000),  # 0.01 to 1000
-            'penalty': ['l1', 'l2'],
-            'solver': ['liblinear', 'saga']
+            'C': np.logspace(-2, 1, 1000),  # 0.01 to 10 (more conservative)
+            'penalty': ['l2'],  # Only l2 to avoid solver conflicts
+            'solver': ['liblinear', 'lbfgs'],  # Removed saga, only compatible solvers
+            'max_iter': [1000, 2000]  # Higher max_iter values
         }
         random_search = RandomizedSearchCV(
             model,
@@ -96,6 +119,10 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, config: dict) -> Tupl
         }
         logger.info(f"Random search completed. Best params: {best_params}")
         logger.info(f"Best CV score: {random_search.best_score_:.4f}")
+        
+        # Check for suspiciously high CV scores
+        if random_search.best_score_ > 0.99:
+            logger.warning(f"Suspiciously high CV score ({random_search.best_score_:.4f}) - possible overfitting or data leakage")
     
     else:
         logger.info(f"Training model with fixed params: {params}")

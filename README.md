@@ -24,7 +24,7 @@ A modular, production-ready pipeline for training and versioning privacy intent 
      - `has_personal_info` (boolean)
      - `formality_score` (float)
      - `urgency_score` (float)
-     - `embeddings` (list[float], 384-dim MiniLM)
+     - `embeddings` (list[float], 584-dim: 384 sentence + 200 TF-IDF)
 
 2. **Configure the pipeline**
    - Edit `config.yaml` to set model type, balancing, output locations, and other parameters. All options are documented in the config file.
@@ -54,6 +54,38 @@ A modular, production-ready pipeline for training and versioning privacy intent 
    - Metrics: `output/metrics.json`
    - Monitoring log: `logs/monitoring_log.jsonl`
    - Model Registry: `models/model_registry.json`
+
+---
+
+## 📊 Expected Performance & Data Considerations
+
+### **Current Test Results**
+The pipeline achieves **perfect scores (1.0000 accuracy/F1)** on the included synthetic test dataset. This is expected because:
+
+- **Synthetic Data**: The test dataset contains artificially generated text with very clear, non-overlapping patterns
+- **Distinct Intent Patterns**: Each intent has specific vocabulary that doesn't overlap:
+  - `opt_out`: "Stop tracking me", "Stop collecting"
+  - `data_deletion`: "Delete my data", "Remove my data"
+  - `privacy_request`: "Access to my data", "My data rights"
+  - `other`: Generic queries
+- **Rich Feature Space**: 584-dimensional embeddings provide excellent separation
+- **Balanced Classes**: Equal representation of all intents
+
+### **Real-World Expectations**
+When using this pipeline with **actual user data**, expect more realistic performance:
+
+- **Typical Scores**: 0.7-0.9 accuracy/F1 (depending on data quality)
+- **Class Imbalance**: Real data often has uneven intent distribution
+- **Text Variation**: Natural language has more ambiguity and overlap
+- **Edge Cases**: Ambiguous requests that could belong to multiple intents
+- **Data Quality**: Noise, typos, and informal language
+
+### **Performance Monitoring**
+The pipeline includes warnings for:
+- Suspiciously high scores (>0.99) indicating potential overfitting
+- Severe class imbalance (<10% minority class ratio)
+- Low feature variance suggesting data leakage
+- Convergence issues during training
 
 ---
 

@@ -1,0 +1,9 @@
+run_id,timestamp,model_version,embedding_model,status,f1_score,accuracy,roc_auc,train_size,test_size,notes
+run_20250729_091516,2025-07-29T09:15:16.566555,,all-MiniLM-L6-v2,failed,,,,,,Pipeline failed: dump() missing 1 required positional argument: 'filename'
+run_20250729_091636,2025-07-29T09:16:36.303856,,all-MiniLM-L6-v2,failed,,,,,,Pipeline failed: 'model_dir'
+run_20250729_091904,2025-07-29T09:19:05.003536,,,failed,,,,,,"Pipeline failed: only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices"
+run_20250729_091928,2025-07-29T09:19:28.450022,,,failed,,,,,,Pipeline failed: sklearn.linear_model._logistic.LogisticRegression() got multiple values for keyword argument 'random_state'
+run_20250729_092114,2025-07-29T09:21:14.470588,,,failed,,,,,,"Pipeline failed: Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted']."
+run_20250729_092257,2025-07-29T09:22:57.489692,,,failed,,,,,,"Pipeline failed: Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted']."
+run_20250729_092449,2025-07-29T09:24:49.095600,,,failed,,,,,,Pipeline failed: 'dict' object has no attribute 'endswith'
+run_20250729_120647,2025-07-29T12:06:47.058976,v20250729_120642,,success,,1.0,,,,Pipeline run with random search

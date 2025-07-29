@@ -41,8 +41,38 @@
       "status": "failed",
       "notes": "Pipeline failed: [Errno 2] No such file or directory: 'C:\\\\Users\\\\aleja\\\\Repos\\\\model-training-pipeline\\\\data/train.csv'",
       "processing_duration_seconds": 0.006649494171142578
+    },
+    {
+      "run_id": "run_20250729_115943",
+      "timestamp": "2025-07-29T11:59:43.048900",
+      "model_version": null,
+      "training_timestamp": "2025-07-29T11:59:43.048900",
+      "data_info": {},
+      "hyperparameters": {},
+      "search_method": null,
+      "search_info": {},
+      "metrics": {},
+      "gcs_paths": {},
+      "status": "failed",
+      "duration_seconds": 82.98451089859009,
+      "notes": "Pipeline failed: 'dict' object has no attribute 'endswith'"
+    },
+    {
+      "run_id": "run_20250729_120320",
+      "timestamp": "2025-07-29T12:03:20.732302",
+      "model_version": null,
+      "training_timestamp": "2025-07-29T12:03:20.732302",
+      "data_info": {},
+      "hyperparameters": {},
+      "search_method": null,
+      "search_info": {},
+      "metrics": {},
+      "gcs_paths": {},
+      "status": "failed",
+      "duration_seconds": 142.06809043884277,
+      "notes": "Pipeline failed: 'dict' object has no attribute 'endswith'"
     }
   ],
   "models": {},
-  "last_updated": "2025-07-29T09:07:34.633834"
+  "last_updated": "2025-07-29T12:03:20.732302"
 }

@@ -102,8 +102,224 @@
       "status": "failed",
       "duration_seconds": 93.15770244598389,
       "notes": "Pipeline failed: 'dict' object has no attribute 'endswith'"
+    },
+    {
+      "run_id": "run_20250729_120647",
+      "timestamp": "2025-07-29T12:06:47.058976",
+      "model_version": "v20250729_120642",
+      "training_timestamp": "2025-07-29T12:06:42.578607",
+      "data_info": {
+        "total_samples": 10000,
+        "train_samples": 8000,
+        "test_samples": 2000,
+        "feature_dimensions": 584,
+        "classes": [
+          "data_deletion",
+          "opt_out",
+          "other",
+          "privacy_request"
+        ],
+        "class_distribution": {
+          "other": 2000,
+          "opt_out": 2000,
+          "data_deletion": 2000,
+          "privacy_request": 2000
+        }
+      },
+      "hyperparameters": {
+        "solver": "liblinear",
+        "penalty": "l2",
+        "max_iter": 2000,
+        "C": 2.406475150015424
+      },
+      "search_method": "random",
+      "search_info": {
+        "method": "random_search",
+        "best_score": 1.0,
+        "n_iterations": 20
+      },
+      "metrics": {
+        "accuracy": 1.0,
+        "f1_weighted": 1.0,
+        "f1_macro": 1.0,
+        "f1_micro": 1.0,
+        "f1_data_deletion": 1.0,
+        "f1_opt_out": 1.0,
+        "f1_other": 1.0,
+        "f1_privacy_request": 1.0,
+        "confusion_matrix": [
+          [
+            500,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            500,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            500,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            500
+          ]
+        ],
+        "classification_report": {
+          "data_deletion": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "opt_out": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "other": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "privacy_request": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "accuracy": 1.0,
+          "macro avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2000.0
+          }
+        },
+        "roc_auc_ovr": 1.0,
+        "pr_auc_ovr": 1.0
+      },
+      "gcs_paths": {
+        "model_gcs_path": "gs://pcc-datasets/pcc-models/v20250729_120642/model.joblib",
+        "metadata_gcs_path": "gs://pcc-datasets/pcc-models/v20250729_120642/metadata.json",
+        "model_version": "v20250729_120642"
+      },
+      "status": "success",
+      "duration_seconds": 82.76025366783142,
+      "notes": "Pipeline run with random search"
     }
   ],
-  "models": {},
-  "last_updated": "2025-07-29T09:24:49.095600"
+  "models": {
+    "v20250729_120642": {
+      "run_id": "run_20250729_120647",
+      "timestamp": "2025-07-29T12:06:47.058976",
+      "embedding_model": null,
+      "metrics": {
+        "accuracy": 1.0,
+        "f1_weighted": 1.0,
+        "f1_macro": 1.0,
+        "f1_micro": 1.0,
+        "f1_data_deletion": 1.0,
+        "f1_opt_out": 1.0,
+        "f1_other": 1.0,
+        "f1_privacy_request": 1.0,
+        "confusion_matrix": [
+          [
+            500,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            500,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            500,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            500
+          ]
+        ],
+        "classification_report": {
+          "data_deletion": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "opt_out": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "other": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "privacy_request": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 500.0
+          },
+          "accuracy": 1.0,
+          "macro avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2000.0
+          }
+        },
+        "roc_auc_ovr": 1.0,
+        "pr_auc_ovr": 1.0
+      },
+      "hyperparameters": {
+        "solver": "liblinear",
+        "penalty": "l2",
+        "max_iter": 2000,
+        "C": 2.406475150015424
+      },
+      "gcs_paths": {
+        "model_gcs_path": "gs://pcc-datasets/pcc-models/v20250729_120642/model.joblib",
+        "metadata_gcs_path": "gs://pcc-datasets/pcc-models/v20250729_120642/metadata.json",
+        "model_version": "v20250729_120642"
+      },
+      "status": "success"
+    }
+  },
+  "last_updated": "2025-07-29T12:06:47.058976"
 }

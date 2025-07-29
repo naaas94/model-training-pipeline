@@ -35,9 +35,10 @@ preprocessing:
 model:
   type: 'LogisticRegression'
   hyperparameters:
-    penalty: 'l1'
-    C: 10
-    solver: 'liblinear'
+    penalty: 'l2'  # Changed from l1 to l2 for better convergence
+    C: 1.0  # Reduced from 10 for more regularization
+    solver: 'lbfgs'  # Changed from liblinear to lbfgs (better for l2)
+    max_iter: 1000  # Increased from default 100
     random_state: 42
   grid_search: true
   search_method: 'random'  # Options: 'grid', 'random', 'none'
