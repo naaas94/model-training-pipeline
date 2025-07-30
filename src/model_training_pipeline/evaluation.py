@@ -94,7 +94,12 @@ def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series, case_ids: Lis
     # Save predictions and metrics
     # Get output paths from config
     from .utils import load_config
-    config = load_config('config.yaml')
+    import os
+    
+    # Get the project root directory (parent of src/)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    config_path = os.path.join(project_root, 'config.yaml')
+    config = load_config(config_path)
     predictions_path = config['output']['predictions']
     metrics_path = config['output']['metrics']
     

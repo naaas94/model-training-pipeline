@@ -71,8 +71,38 @@
       "status": "failed",
       "duration_seconds": 142.06809043884277,
       "notes": "Pipeline failed: 'dict' object has no attribute 'endswith'"
+    },
+    {
+      "run_id": "run_20250730_111635",
+      "timestamp": "2025-07-30T11:16:35.763689",
+      "model_version": null,
+      "training_timestamp": "2025-07-30T11:16:35.762597",
+      "data_info": {},
+      "hyperparameters": {},
+      "search_method": null,
+      "search_info": {},
+      "metrics": {},
+      "gcs_paths": {},
+      "status": "failed",
+      "duration_seconds": 80.70484447479248,
+      "notes": "Pipeline failed: [Errno 2] No such file or directory: 'config.yaml'"
+    },
+    {
+      "run_id": "run_20250730_112003",
+      "timestamp": "2025-07-30T11:20:03.665296",
+      "model_version": null,
+      "training_timestamp": "2025-07-30T11:20:03.665296",
+      "data_info": {},
+      "hyperparameters": {},
+      "search_method": null,
+      "search_info": {},
+      "metrics": {},
+      "gcs_paths": {},
+      "status": "failed",
+      "duration_seconds": 80.92288398742676,
+      "notes": "Pipeline failed: Cannot save file into a non-existent directory: 'output'"
     }
   ],
   "models": {},
-  "last_updated": "2025-07-29T12:03:20.732302"
+  "last_updated": "2025-07-30T11:20:03.665296"
 }

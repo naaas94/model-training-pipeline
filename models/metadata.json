@@ -26,6 +26,6 @@
     "data_deletion": 2000,
     "privacy_request": 2000
   },
-  "model_version": "v20250729_120642",
-  "training_timestamp": "2025-07-29T12:06:42.578607"
+  "model_version": "v20250730_112340",
+  "training_timestamp": "2025-07-30T11:23:40.501096"
 }
