@@ -8,7 +8,7 @@ tags: []
 
 A modular, production-ready pipeline for training and versioning privacy intent classification models. Designed for integration with the PCC system and ready for plug-and-play use.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Prepare Your Data
 Place your data file (CSV, Parquet, or PKL) in the path specified by `data.path` in `config.yaml`. Ensure your data matches the required schema:
@@ -43,7 +43,7 @@ python scripts/train_pipeline.py
 - Metrics: `output/metrics.json`
 - Registry: `models/model_registry.json`
 
-## 📊 Performance Expectations
+## Performance Expectations
 
 ### Test Results
 The pipeline achieves **perfect scores (1.0000 accuracy/F1)** on synthetic test data due to:
@@ -58,7 +58,7 @@ With actual user data, expect **0.7-0.9 accuracy/F1** due to:
 - Text variation and noise
 - Edge cases and typos
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 model-training-pipeline/
@@ -81,7 +81,7 @@ model-training-pipeline/
 └── logs/                      # Monitoring logs
 ```
 
-## 🔧 Pipeline Stages
+## Pipeline Stages
 
 1. **Data Ingestion** → Load from CSV/Parquet/GCS
 2. **Data Validation** → Schema & embedding validation
@@ -91,7 +91,7 @@ model-training-pipeline/
 6. **Persistence** → Save model, predictions, logs
 7. **Registry** → Track runs, metadata, GCS paths
 
-## ⚙️ Configuration
+## Configuration
 
 All pipeline behavior is controlled via `config.yaml`:
 
@@ -118,13 +118,13 @@ output:
   metrics_file: "output/metrics.json"
 ```
 
-## 🔍 Hyperparameter Optimization
+## Hyperparameter Optimization
 
 ### Available Methods
 
 | Method | Speed | Effectiveness | Best For |
 |--------|-------|---------------|----------|
-| **Random Search** | Fast | Better | ✅ **Recommended** |
+| **Random Search** | Fast | Better | **Recommended** |
 | Grid Search | Medium | Good | Small parameter spaces |
 | No Search | Fastest | Basic | Quick testing |
 
@@ -151,7 +151,7 @@ model:
 - Reproducible results
 - Good for small parameter spaces
 
-## 🔧 Model Registry Management
+## Model Registry Management
 
 Use the CLI tool to manage models:
 
@@ -179,7 +179,7 @@ python scripts/manage_models.py get --version v20250729084352
 - **Export Capabilities**: Export registry data for analysis
 - **Failure Tracking**: Failed runs logged for debugging
 
-## ☁️ GCS Integration
+## GCS Integration
 
 Models are automatically saved to Google Cloud Storage:
 
@@ -200,14 +200,14 @@ gs://pcc-datasets/pcc-models/
 - Easy retrieval from GCS paths
 - Local + GCS backup strategy
 
-## 🧪 Testing
+## Testing
 
 Run all unit tests:
 ```bash
 pytest
 ```
 
-## ✨ Key Features
+## Key Features
 
 - **Config-driven**: All behavior controlled via `config.yaml`
 - **Modular**: Each stage is a separate, swappable module
@@ -217,7 +217,7 @@ pytest
 - **Unit tested**: Core modules covered by tests
 - **Logging**: Comprehensive logging throughout pipeline
 
-## 🚀 Production Workflow
+## Production Workflow
 
 1. **New Dataset** → Place in `data/` directory
 2. **Configure Search** → Set `search_method: 'random'` for best results
@@ -226,7 +226,7 @@ pytest
 5. **Registry Updated** → Run tracked with performance metrics
 6. **Monitor Performance** → Use CLI tools to track over time
 
-## 🔧 Recent Enhancements
+## Recent Enhancements
 
 - **Schema Consistency**: Fixed column naming across modules
 - **Security**: Replaced `eval()` with `ast.literal_eval()`
@@ -236,7 +236,7 @@ pytest
 - **Model Registry**: Complete tracking system for all runs
 - **CLI Tools**: Management interface for model registry
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 ### High Priority
 - **Enhanced Metrics**: Training/validation scores, per-class analysis
