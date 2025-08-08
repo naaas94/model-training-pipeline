@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  ml-pipeline:
+    build: .
+    container_name: ml-training-pipeline
+    environment:
+      - PIPELINE_CONFIG=/app/config.yaml
+      - PYTHONPATH=/app/src
+      # GCS credentials (set these in production)
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/gcs-key.json
+    volumes:
+      # Mount data directory for input data
+      - ./data:/app/data:ro
+      # Mount output directories for persistence
+      - ./models:/app/models
+      - ./output:/app/output
+      - ./logs:/app/logs
+      # Mount credentials (create this directory and add your GCS key)
+      - ./credentials:/app/credentials:ro
+    networks:
+      - ml-network
+    restart: unless-stopped
+    # For development, you can override the command
+    # command: ["python", "-c", "import time; time.sleep(3600)"]
+
+  # Optional: Add a monitoring service for pipeline logs
+  monitoring:
+    image: nginx:alpine
+    container_name: ml-monitoring
+    ports:
+      - "8080:80"
+    volumes:
+      - ./logs:/usr/share/nginx/html/logs:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - ml-network
+    depends_on:
+      - ml-pipeline
+    restart: unless-stopped
+
+networks:
+  ml-network:
+    driver: bridge
+
+volumes:
+  ml-data:
+  ml-models:
+  ml-output:
+  ml-logs:

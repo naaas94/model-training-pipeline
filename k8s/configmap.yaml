@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-pipeline-config
+  namespace: ml-pipeline
+data:
+  config.yaml: |
+    # config.yaml: Model Training Pipeline Configuration
+    
+    data:
+      path: '/app/data/balanced_dataset_20250728.csv'
+      schema:
+        - name: 'text'
+          type: 'str'
+        - name: 'intent'
+          type: 'str'
+        - name: 'confidence'
+          type: 'float'
+        - name: 'timestamp'
+          type: 'str'
+        - name: 'text_length'
+          type: 'int'
+        - name: 'word_count'
+          type: 'int'
+        - name: 'has_personal_info'
+          type: 'bool'
+        - name: 'formality_score'
+          type: 'float'
+        - name: 'urgency_score'
+          type: 'float'
+        - name: 'embeddings'
+          type: 'list[float]'
+      stratify: true
+      test_size: 0.2
+      random_state: 42
+    
+    preprocessing:
+      embedding_model: 'all-MiniLM-L6-v2'
+      balance: true
+      balance_method: 'SMOTE'
+    
+    model:
+      type: 'LogisticRegression'
+      hyperparameters:
+        penalty: 'l2'
+        C: 1.0
+        solver: 'lbfgs'
+        max_iter: 1000
+        random_state: 42
+      grid_search: true
+      search_method: 'random'
+      n_iter: 20
+      cross_val: false
+      cv_folds: 5
+      scoring: 'f1_weighted'
+    
+    output:
+      predictions: '/app/output/test_predictions.parquet'
+      metrics: '/app/output/test_metrics.json'
+      monitoring_log: '/app/logs/test_monitoring.jsonl'
+    
+    logging:
+      level: 'INFO'

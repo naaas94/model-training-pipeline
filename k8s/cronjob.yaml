@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ml-pipeline-cronjob
+  namespace: ml-pipeline
+spec:
+  schedule: "0 2 * * *"  # Run daily at 2 AM UTC
+  concurrencyPolicy: Forbid  # Don't run if previous job is still running
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ml-pipeline-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: ml-pipeline
+            image: your-registry/ml-pipeline:latest  # Replace with your image
+            imagePullPolicy: Always
+            env:
+            - name: PYTHONPATH
+              value: "/app/src"
+            - name: PIPELINE_CONFIG
+              value: "/app/config/config.yaml"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/app/credentials/gcs-key.json"
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: "1"
+              limits:
+                memory: "4Gi"
+                cpu: "2"
+            volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+            - name: credentials-volume
+              mountPath: /app/credentials
+            - name: data-volume
+              mountPath: /app/data
+            - name: models-volume
+              mountPath: /app/models
+            - name: output-volume
+              mountPath: /app/output
+            - name: logs-volume
+              mountPath: /app/logs
+          volumes:
+          - name: config-volume
+            configMap:
+              name: ml-pipeline-config
+          - name: credentials-volume
+            secret:
+              secretName: ml-pipeline-secrets
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: ml-pipeline-data
+          - name: models-volume
+            persistentVolumeClaim:
+              claimName: ml-pipeline-models
+          - name: output-volume
+            persistentVolumeClaim:
+              claimName: ml-pipeline-output
+          - name: logs-volume
+            persistentVolumeClaim:
+              claimName: ml-pipeline-logs
